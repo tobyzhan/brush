@@ -19,19 +19,19 @@
     <section class="hero">
         <h1>BRUSH</h1>
         <p>Find the perfect show to binge based on your time and mood!</p>
-        <form class="mood-form">
+        <form class="mood-form" method="POST">
             <label>I'm feeling</label>
-            <input type="text" name="mood" placeholder="comedy, romance, sad, etc." style="width: 40ch;" required>
+            <input type="text" name="feeling" placeholder="comedy, romance, sad, etc." style="width: 40ch;" required>
             
             <label>today, with </label>
-            <input type="number" name="hours" min="0" placeholder="hrs" style="width: 7ch;" required>
+            <input type="number" name="hrs" min="0" placeholder="hrs" style="width: 7ch;" required>
             
-            <label>and</label>
-            <input type="number" name="minutes" min="0" max="59" placeholder="mins" style="width: 7ch;" required>
+            <label>hour(s) and</label>
+            <input type="number" name="mins" min="0" max="59" placeholder="mins" style="width: 7ch;" required>
 
-            <label>to binge!</label>
-        </form>
-        <form class="mood-form">
+            <label>min(s) to binge!</label>
+
+
             <button type="submit">Binge</button>
         </form>
     </section>

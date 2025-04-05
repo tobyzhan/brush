@@ -56,6 +56,7 @@ nav a {
 }
 
 .mood-form button {
+    display: block;
     background-color: orange;
     color: #000;
     font-weight: bold;
