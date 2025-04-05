@@ -1,5 +1,57 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BingeBuddy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="logo">Brush</div>
+        <nav>
+            <a href="#">Home</a>
+            <a href="#">Trending</a>
+            <a href="#">Genres</a>
+            <a href="#">My List</a>
+        </nav>
+    </header>
 
-{% block header %}
-  <h1>{% block title %}HOME{% endblock %}</h1>
-{% endblock %}
+    <section class="hero">
+        <h1>What Are You In The Mood For?</h1>
+        <p>Find the perfect show or movie based on your time and vibe.</p>
+        <form class="mood-form">
+            <input type="text" placeholder="How are you feeling?" required>
+            <input type="number" placeholder="Time (minutes)" min="5" required>
+            <button type="submit">Recommend</button>
+        </form>
+    </section>
+
+    <section class="recommendations">
+        <h2>Popular Picks</h2>
+        <div class="card-container">
+            <!-- Replace with dynamic content later -->
+            <div class="card">
+                <img src="https://via.placeholder.com/200x300?text=Movie+1" alt="Movie 1">
+                <h3>Movie Title</h3>
+                <p>Genre · 1h 45m</p>
+            </div>
+            <div class="card">
+                <img src="https://via.placeholder.com/200x300?text=Movie+2" alt="Movie 2">
+                <h3>Series Title</h3>
+                <p>Drama · 3 Seasons</p>
+            </div>
+            <div class="card">
+                <img src="https://via.placeholder.com/200x300?text=Movie+3" alt="Movie 3">
+                <h3>Another Hit</h3>
+                <p>Thriller · 2h</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2025 Brush. Built with 🍿 and ❤️.</p>
+    </footer>
+</body>
+</html>
