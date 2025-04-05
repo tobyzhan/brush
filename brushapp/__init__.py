@@ -26,7 +26,7 @@ def create_app(test_config=None):
         pass
 
     #Registering the blueprints:
-    from brushapp import homepage
-    app.register_blueprint(homepage.homepagebp)
+    from brushapp.homepage import homepagebp
+    app.register_blueprint(homepagebp)
     
     return app
