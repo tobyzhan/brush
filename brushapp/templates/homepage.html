@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BingeBuddy</title>
+    <title>Brush</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap" rel="stylesheet">
 </head>
@@ -17,11 +17,21 @@
     </header>
 
     <section class="hero">
-        <h1>What Are You In The Mood For?</h1>
-        <p>Find the perfect show to binge based on your time and vibe!</p>
+        <h1>BRUSH</h1>
+        <p>Find the perfect show to binge based on your time and mood!</p>
         <form class="mood-form">
-            <input type="text" placeholder="How are you feeling?" required>
-            <input type="number" placeholder="Time (minutes)" min="5" required>
+            <label>I'm feeling</label>
+            <input type="text" name="mood" placeholder="comedy, romance, sad, etc." style="width: 40ch;" required>
+            
+            <label>today, with </label>
+            <input type="number" name="hours" min="0" placeholder="hrs" style="width: 7ch;" required>
+            
+            <label>and</label>
+            <input type="number" name="minutes" min="0" max="59" placeholder="mins" style="width: 7ch;" required>
+
+            <label>to binge!</label>
+        </form>
+        <form class="mood-form">
             <button type="submit">Binge</button>
         </form>
     </section>

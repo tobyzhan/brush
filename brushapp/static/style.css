@@ -55,16 +55,17 @@ nav a {
     font-size: 1rem;
 }
 
-.mood-form input {
-    width: 200px;
-}
-
 .mood-form button {
     background-color: orange;
     color: #000;
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.3s;
+
+    font-size: 1.4rem;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 6px;
 }
 
 .mood-form button:hover {
