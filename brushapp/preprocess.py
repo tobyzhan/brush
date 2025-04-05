@@ -1,64 +1,69 @@
-# preprocess.py
 import pandas as pd
 
-# Define dtypes to avoid mixed-type warnings and handle NaN
-dtypes = {
+# Define dtypes (relaxed for initial load)
+initial_dtypes = {
     "tconst": str,
     "titleType": str,
     "primaryTitle": str,
     "originalTitle": str,
-    "isAdult": "Int64",
+    "isAdult": str,  # Load as string first
     "startYear": str,
     "endYear": str,
-    "runtimeMinutes": "Int64",
+    "runtimeMinutes": str,  # Load as string first
     "genres": str
 }
 
-# Explicitly name columns to match IMDb structure
 column_names = ["tconst", "titleType", "primaryTitle", "originalTitle", "isAdult", 
                 "startYear", "endYear", "runtimeMinutes", "genres"]
 
-# Load basics with error handling
-try:
-    basics = pd.read_csv(
-        "title.basics.tsv.gz",
-        sep="\t",
-        compression="gzip",
-        na_values="\\N",
-        dtype=dtypes,
-        names=column_names,
-        header=0,
-        usecols=column_names,
-        on_bad_lines="skip"  # Skip bad rows to finish preprocessing
-    )
-except ValueError as e:
-    print(f"Error loading basics: {e}")
-    # Debug: Load a precise chunk around 48090
-    basics_chunk = pd.read_csv(
-        "title.basics.tsv.gz",
-        sep="\t",
-        compression="gzip",
-        na_values="\\N",
-        names=column_names,
-        header=0,
-        skiprows=48080,  # Start at 48080 (includes header, so 48081 is first data row)
-        nrows=20,        # Load 20 rows (up to ~48100)
-        on_bad_lines="warn"
-    )
-    print("Rows around 48090 (adjusted):")
-    print(basics_chunk)
-    raise  # Stop to inspect
+# Load basics
+print("Loading title.basics.tsv.gz...")
+basics = pd.read_csv(
+    "title.basics.tsv.gz",
+    sep="\t",
+    compression="gzip",
+    na_values="\\N",
+    dtype=initial_dtypes,
+    names=column_names,
+    header=0,
+    on_bad_lines="warn"  # Warn and skip bad rows
+)
+print(f"Loaded title.basics.tsv.gz: {len(basics)} rows")
+
+# Convert numeric columns after loading
+basics["isAdult"] = pd.to_numeric(basics["isAdult"], errors="coerce").astype("Int64")
+basics["runtimeMinutes"] = pd.to_numeric(basics["runtimeMinutes"], errors="coerce").astype("Int64")
+print("Converted numeric columns. Sample:")
+print(basics[["tconst", "isAdult", "runtimeMinutes"]].head())
 
 # Load other datasets
 episodes = pd.read_csv("title.episode.tsv.gz", sep="\t", compression="gzip", na_values="\\N")
 ratings = pd.read_csv("title.ratings.tsv.gz", sep="\t", compression="gzip")
+print(f"Loaded title.episode.tsv.gz: {len(episodes)} rows")
+print(f"Loaded title.ratings.tsv.gz: {len(ratings)} rows")
 
 # Filter TV content
 tv_series = basics[basics["titleType"] == "tvSeries"]
+print(f"Filtered to {len(tv_series)} TV series")
+
+# Merge episodes with basics and ratings
 tv_episodes = episodes.merge(basics, on="tconst").merge(ratings, on="tconst")
+print(f"After merging with basics: {len(tv_episodes)} episodes")
+print(f"After merging with ratings: {len(tv_episodes)} episodes")
+
+# Clean data: Remove rows with missing runtimeMinutes
+tv_episodes = tv_episodes.dropna(subset=["runtimeMinutes"])
+print("Cleaned runtimeMinutes. Sample:")
+print(tv_episodes[["tconst", "runtimeMinutes"]].head())
+
+# Convert seasonNumber and episodeNumber to Int64
+tv_episodes["seasonNumber"] = pd.to_numeric(tv_episodes["seasonNumber"], errors="coerce").astype("Int64")
+tv_episodes["episodeNumber"] = pd.to_numeric(tv_episodes["episodeNumber"], errors="coerce").astype("Int64")
 
 # Add cliffhanger flag
 tv_episodes["isCliffhanger"] = tv_episodes.groupby(["parentTconst", "seasonNumber"])["episodeNumber"].transform("max") == tv_episodes["episodeNumber"]
+print("Cliffhanger flag added. Sample:")
+print(tv_episodes[["tconst", "parentTconst", "seasonNumber", "episodeNumber", "isCliffhanger"]].head())
 
 # Save relevant columns
 output_columns = ["tconst", "parentTconst", "primaryTitle", "seasonNumber", "episodeNumber", "runtimeMinutes", "genres", "averageRating", "isCliffhanger"]
