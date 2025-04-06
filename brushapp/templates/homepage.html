@@ -20,6 +20,67 @@
         <h1>What Are You In The Mood For?</h1>
         <p>Find the perfect show to binge based on your time and vibe!</p>
         
+        <!-- Daily Recommendations -->
+        {% if daily_recommendation_data %}
+        <section class="recommendations">
+            <h2>Today’s Binge Picks</h2>
+            <div class="card-container">
+                {% for rec, image_url in daily_recommendation_data %}
+                <div class="card">
+                    <img src="{{ image_url }}" alt="{{ rec.title }}">
+                    <h3>{{ rec.title }}</h3>
+                    <p>{{ rec.genres.split(',')|join(' · ') }} <br>  {{ rec.episodes }} episodes ({{ rec.total_time }} mins)</p>
+                    <p>Avg Rating: {{ "%.1f" % rec.avg_rating }}</p>
+                    <p>Popularity: 
+                        {% if rec.numVotes >= 10000 %}
+                            {{ "{:.1f}".format(rec.numVotes / 1000) }}K votes (Very Popular)
+                        {% elif rec.numVotes >= 5000 %}
+                            {{ rec.numVotes }} votes (Popular)
+                        {% elif rec.numVotes >= 1000 %}
+                            {{ rec.numVotes }} votes (Moderately Popular)
+                        {% else %}
+                            {{ rec.numVotes }} votes
+                        {% endif %}
+                    </p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% else %}
+        <p>No daily binge recommendations available.</p>
+        {% endif %}
+
+        <!-- Full Completion Recommendations -->
+        {% if full_recommendation_data %}
+        <section class="recommendations">
+            <h2>Full Binge Plan</h2>
+            <div class="card-container">
+                {% for rec, image_url in full_recommendation_data %}
+                <div class="card">
+                    <img src="{{ image_url }}" alt="{{ rec.seriesTitle }}">
+                    <h3>{{ rec.seriesTitle }}</h3>
+                    <p>{{ rec.genres.split(',')|join(' · ') }} <br>  {{ rec.episode_count }} episodes ({{ rec.total_runtime }} mins)</p>
+                    <p>{{ "%.1f" % rec.daily_time }} mins/day for {{ request.form.days }} days</p>
+                    <p>Avg Rating: {{ "%.1f" % rec.averageRating }}</p>
+                    <p>Popularity: 
+                        {% if rec.numVotes >= 10000 %}
+                            {{ "{:.1f}".format(rec.numVotes / 1000) }}K votes (Very Popular)
+                        {% elif rec.numVotes >= 5000 %}
+                            {{ rec.numVotes }} votes (Popular)
+                        {% elif rec.numVotes >= 1000 %}
+                            {{ rec.numVotes }} votes (Moderately Popular)
+                        {% else %}
+                            {{ rec.numVotes }} votes
+                        {% endif %}
+                    </p>
+                </div>
+                {% endfor %}
+                </div>
+            </section>
+            {% else %}
+            <p>No full binge recommendations available.</p>
+            {% endif %}
+
         <!-- Daily Binge Form -->
         <form class="mood-form" method="POST">
             <input type="hidden" name="form_type" value="daily">
@@ -61,67 +122,6 @@
             <button type="submit">Plan Full Binge</button>
         </form>
     </section>
-
-    <!-- Daily Recommendations -->
-    {% if daily_recommendations %}
-    <section class="recommendations">
-        <h2>Today’s Binge Picks</h2>
-        <div class="card-container">
-            {% for rec in daily_recommendations %}
-            <div class="card">
-                <img src="https://via.placeholder.com/200x300?text={{ rec.title }}" alt="{{ rec.title }}">
-                <h3>{{ rec.title }}</h3>
-                <p>{{ rec.genres }} · {{ rec.episodes }} episodes ({{ rec.total_time }} mins)</p>
-                <p>Avg Rating: {{ "%.1f" % rec.avg_rating }}</p>
-                <p>Popularity: 
-                    {% if rec.numVotes >= 10000 %}
-                        {{ "{:.1f}".format(rec.numVotes / 1000) }}K votes (Very Popular)
-                    {% elif rec.numVotes >= 5000 %}
-                        {{ rec.numVotes }} votes (Popular)
-                    {% elif rec.numVotes >= 1000 %}
-                        {{ rec.numVotes }} votes (Moderately Popular)
-                    {% else %}
-                        {{ rec.numVotes }} votes
-                    {% endif %}
-                </p>
-            </div>
-            {% endfor %}
-        </div>
-    </section>
-    {% else %}
-    <p>No daily binge recommendations available.</p>
-    {% endif %}
-
-    <!-- Full Completion Recommendations -->
-    {% if full_recommendations %}
-    <section class="recommendations">
-        <h2>Full Binge Plan</h2>
-        <div class="card-container">
-            {% for rec in full_recommendations %}
-            <div class="card">
-                <img src="https://via.placeholder.com/200x300?text={{ rec.seriesTitle }}" alt="{{ rec.seriesTitle }}">
-                <h3>{{ rec.seriesTitle }}</h3>
-                <p>{{ rec.genres }} · {{ rec.episode_count }} episodes ({{ rec.total_runtime }} mins)</p>
-                <p>{{ "%.1f" % rec.daily_time }} mins/day for {{ request.form.days }} days</p>
-                <p>Avg Rating: {{ "%.1f" % rec.averageRating }}</p>
-                <p>Popularity: 
-                    {% if rec.numVotes >= 10000 %}
-                        {{ "{:.1f}".format(rec.numVotes / 1000) }}K votes (Very Popular)
-                    {% elif rec.numVotes >= 5000 %}
-                        {{ rec.numVotes }} votes (Popular)
-                    {% elif rec.numVotes >= 1000 %}
-                        {{ rec.numVotes }} votes (Moderately Popular)
-                    {% else %}
-                        {{ rec.numVotes }} votes
-                    {% endif %}
-                </p>
-            </div>
-            {% endfor %}
-        </div>
-    </section>
-    {% else %}
-    <p>No full binge recommendations available.</p>
-    {% endif %}
 
     <footer>
         <p>© 2025 BingeBuddy. Built with 🍿 and ❤️.</p>
