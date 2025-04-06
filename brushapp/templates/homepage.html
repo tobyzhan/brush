@@ -24,16 +24,37 @@
         <form class="mood-form" method="POST">
             <input type="hidden" name="form_type" value="daily">
             <div class="input-row">
-                <input type="text" name="genre" placeholder="Genre (e.g., Comedy)" autocomplete="off">
+                <select name="genre">
+                    <option value="">Any</option>
+                    <option value="Drama">Drama</option>
+                    <option value="Comedy">Comedy</option>
+                    <option value="Romance">Romance</option>
+                    <option value="Animation">Animation</option>
+                    <option value="Horror">Horror</option>
+                    <option value="Thriller">Thriller</option>
+                    <option value="Crime">Crime</option>
+                    <option value="Mystery">Mystery</option>
+                </select>
                 <input type="number" name="time_limit" placeholder="Time today (minutes)" min="5" required>
             </div>
             <button type="submit">Binge Today</button>
         </form>
         
+        <!-- Full Completion Form -->
         <form class="mood-form" method="POST">
             <input type="hidden" name="form_type" value="full">
             <div class="input-row">
-                <input type="text" name="genre" placeholder="Genre (e.g., Drama)" autocomplete="off">
+                <select name="genre">
+                    <option value="">Any</option>
+                    <option value="Drama">Drama</option>
+                    <option value="Comedy">Comedy</option>
+                    <option value="Romance">Romance</option>
+                    <option value="Animation">Animation</option>
+                    <option value="Horror">Horror</option>
+                    <option value="Thriller">Thriller</option>
+                    <option value="Crime">Crime</option>
+                    <option value="Mystery">Mystery</option>
+                </select>
                 <input type="number" name="days" placeholder="Days to finish" min="1" required>
                 <input type="number" name="daily_minutes" placeholder="Minutes per day" min="5" required>
             </div>
