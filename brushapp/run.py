@@ -14,4 +14,4 @@ def log_request():
         print(f"{header}: {value}")
 
 if __name__ == "__main__":
-    app.run(port=1313, debug=True, use_reloader=True)
+    app.run(debug=True, use_reloader=True)
