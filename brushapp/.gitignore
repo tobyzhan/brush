@@ -1,7 +1,0 @@
-# Exclude generated data
-brushapp/data/imdb_data.csv
-
-# Exclude IMDb datasets
-brushapp/title.basics.tsv.gz
-brushapp/title.episode.tsv.gz
-brushapp/title.ratings.tsv.gz
