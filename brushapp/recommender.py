@@ -17,29 +17,59 @@ def recommend_daily_binge(time_limit_minutes, genre=None):
     else:
         filtered = data.copy()
 
+    # Calculate cumulative runtime within time limit
     filtered["cumulative_runtime"] = filtered.groupby("parentTconst")["runtimeMinutes"].cumsum()
     available = filtered[filtered["cumulative_runtime"] <= time_limit_minutes].copy()
 
+    # Group by show and take episodes that fit
     recommendations = []
     for parent_tconst, group in available.groupby("parentTconst"):
         episodes = group.sort_values(["seasonNumber", "episodeNumber"])
         num_episodes = len(episodes)
         total_time = episodes["runtimeMinutes"].sum()
-        if total_time > 0:
+        if total_time > 0:  # Ensure there’s content
+            # Calculate average rating and total votes for the show
+            avg_rating = episodes["averageRating"].mean()
+            total_votes = episodes["numVotes"].sum()
+
+            # Skip shows with less than 100 votes (to ensure they’re "Google-able")
+            if total_votes < 100:
+                continue
+            
+            # Normalize numVotes for sorting (log scale)
+            normalized_votes = np.log1p(total_votes)
+            max_votes = np.log1p(data["numVotes"].sum())  # Approximate max for normalization
+            if max_votes > 0:
+                normalized_votes = normalized_votes / max_votes
+
+            # Calculate time closeness
+            time_closeness = 1 - abs(total_time - time_limit_minutes) / time_limit_minutes
+
+            # Sort score: 60% popularity, 30% rating, 10% time closeness
+            sort_score = (
+                normalized_votes * 0.6 +  # Increased weight for popularity
+                avg_rating * 0.3 +
+                time_closeness * 0.1
+            )
+
             recommendations.append({
-                "title": episodes["primaryTitle"].iloc[0],
+                "title": episodes["seriesTitle"].iloc[0],
                 "episodes": num_episodes,
                 "total_time": total_time,
                 "episode_list": episodes[["seasonNumber", "episodeNumber", "runtimeMinutes", "averageRating", "isCliffhanger"]].to_dict("records"),
-                "genres": episodes["genres"].iloc[0]
+                "genres": episodes["genres"].iloc[0],
+                "avg_rating": avg_rating,
+                "numVotes": total_votes,
+                "sort_score": sort_score
             })
 
-    return sorted(recommendations, key=lambda x: max(ep["averageRating"] for ep in x["episode_list"]), reverse=True)[:5]
+    # Sort by sort_score
+    return sorted(recommendations, key=lambda x: x["sort_score"], reverse=True)[:5]
 
 def recommend_full_completion(total_days, minutes_per_day, genre=None):
     """Recommend shows/seasons to complete within a time frame."""
     total_time = total_days * minutes_per_day
-    min_time = total_time * 0.75  # 75% of requested time
+    min_time = total_time * 0.8  # 80% of requested time (280 mins for 350 mins total)
 
     if genre:
         filtered = data[data["genres"].str.contains(genre, case=False, na=False)].copy()
@@ -48,12 +78,12 @@ def recommend_full_completion(total_days, minutes_per_day, genre=None):
 
     # Group by show and calculate total runtime, average rating, total votes
     shows = filtered.groupby("parentTconst").agg({
-        "primaryTitle": "first",
+        "seriesTitle": "first",
         "runtimeMinutes": "sum",
         "genres": "first",
         "averageRating": "mean",
-        "numVotes": "sum",  # Sum votes across episodes
-        "tconst": "count"  # Number of episodes
+        "numVotes": "sum",
+        "tconst": "count"
     }).reset_index()
     shows = shows.rename(columns={"tconst": "episode_count", "runtimeMinutes": "total_runtime"})
 
@@ -61,25 +91,26 @@ def recommend_full_completion(total_days, minutes_per_day, genre=None):
     viable_shows = shows[(shows["total_runtime"] <= total_time) & (shows["total_runtime"] >= min_time)].copy()
     viable_shows["daily_time"] = viable_shows["total_runtime"] / total_days
 
-    # Normalize numVotes to prevent it from dominating (log scale since votes can vary widely)
-    viable_shows["normalized_votes"] = np.log1p(viable_shows["numVotes"])  # log(1 + numVotes) to handle zeros
+    # Normalize numVotes for sorting (log scale)
+    viable_shows["normalized_votes"] = np.log1p(viable_shows["numVotes"])
     max_votes = viable_shows["normalized_votes"].max()
     if max_votes > 0:
-        viable_shows["normalized_votes"] = viable_shows["normalized_votes"] / max_votes  # Scale to [0, 1]
+        viable_shows["normalized_votes"] = viable_shows["normalized_votes"] / max_votes
 
     # Calculate time closeness
     viable_shows["time_closeness"] = 1 - abs(viable_shows["total_runtime"] - total_time) / total_time
 
     # Sort by a combination of average rating, time closeness, episode count, and popularity
     viable_shows["sort_score"] = (
-        viable_shows["averageRating"] * 0.4 +  # 40% weight on rating
-        viable_shows["time_closeness"] * 0.25 +  # 25% weight on closeness to total time
-        viable_shows["episode_count"] * 0.15 +  # 15% weight on number of episodes
-        viable_shows["normalized_votes"] * 0.2  # 20% weight on popularity
+        viable_shows["averageRating"] * 0.2 +
+        viable_shows["time_closeness"] * 0.4 +
+        viable_shows["episode_count"] * 0.1 +
+        viable_shows["normalized_votes"] * 0.3
     )
 
-    # Return top 5 by sort_score
-    return viable_shows.sort_values("sort_score", ascending=False).head(5).to_dict("records")
+    # Convert to dictionary and include numVotes
+    recommendations = viable_shows.sort_values("sort_score", ascending=False).head(5).to_dict("records")
+    return recommendations
 
 # Example usage
 if __name__ == "__main__":
@@ -87,10 +118,10 @@ if __name__ == "__main__":
     daily_recs = recommend_daily_binge(120, "Drama")
     print("Daily Binge Recommendations:")
     for rec in daily_recs:
-        print(f"{rec['title']} - {rec['episodes']} episodes, {rec['total_time']} mins")
+        print(f"{rec['title']} - {rec['episodes']} episodes, {rec['total_time']} mins, Votes: {rec['numVotes']}, Avg Rating: {rec['avg_rating']:.1f}")
 
     # Full completion: 7 days, 50 mins/day
     full_recs = recommend_full_completion(7, 50, "Drama")
     print("\nFull Completion Recommendations:")
     for rec in full_recs:
-        print(f"{rec['primaryTitle']} - {rec['total_runtime']} mins total, {rec['daily_time']:.1f} mins/day, Votes: {rec['numVotes']}")
+        print(f"{rec['seriesTitle']} - {rec['total_runtime']} mins total, {rec['daily_time']:.1f} mins/day, Votes: {rec['numVotes']}")
