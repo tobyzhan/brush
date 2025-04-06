@@ -13,6 +13,11 @@ header {
     padding: 1rem 2rem;
 }
 
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
 .logo {
     font-size: 1.8rem;
     font-weight: 700;
@@ -22,7 +27,7 @@ header {
 nav a {
     margin-left: 1.5rem;
     text-decoration: none;
-    color: lightblue;
+    color: none;
     font-weight: 500;
 }
 
