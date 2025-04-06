@@ -53,6 +53,7 @@ def recommend_daily_binge(time_limit_minutes, genre=None):
             )
 
             recommendations.append({
+                "parentTconst": parent_tconst,
                 "title": episodes["seriesTitle"].iloc[0],
                 "episodes": num_episodes,
                 "total_time": total_time,

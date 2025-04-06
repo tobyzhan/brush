@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BingeBuddy</title>
+    <title>Brush</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
-        <div class="logo">BingeBuddy</div>
+        <div class="logo">Brush</div>
         <nav>
             <a href="#">Home</a>
             <a href="#">Trending</a>
@@ -25,7 +25,8 @@
         <section class="recommendations">
             <h2>Today’s Binge Picks</h2>
             <div class="card-container">
-                {% for rec, image_url in daily_recommendation_data %}
+            {% for rec, image_url in daily_recommendation_data %}
+            <a href="https://www.imdb.com/title/{{ rec.parentTconst }}" target="_blank" class="card-link">
                 <div class="card">
                     <img src="{{ image_url }}" alt="{{ rec.title }}">
                     <h3>{{ rec.title }}</h3>
@@ -43,11 +44,10 @@
                         {% endif %}
                     </p>
                 </div>
-                {% endfor %}
+            </a>
+            {% endfor %}
             </div>
         </section>
-        {% else %}
-        <p>No daily binge recommendations available.</p>
         {% endif %}
 
         <!-- Full Completion Recommendations -->
@@ -56,29 +56,29 @@
             <h2>Full Binge Plan</h2>
             <div class="card-container">
                 {% for rec, image_url in full_recommendation_data %}
-                <div class="card">
-                    <img src="{{ image_url }}" alt="{{ rec.seriesTitle }}">
-                    <h3>{{ rec.seriesTitle }}</h3>
-                    <p>{{ rec.genres.split(',')|join(' · ') }} <br>  {{ rec.episode_count }} episodes ({{ rec.total_runtime }} mins)</p>
-                    <p>{{ "%.1f" % rec.daily_time }} mins/day for {{ request.form.days }} days</p>
-                    <p>Avg Rating: {{ "%.1f" % rec.averageRating }}</p>
-                    <p>Popularity: 
-                        {% if rec.numVotes >= 10000 %}
-                            {{ "{:.1f}".format(rec.numVotes / 1000) }}K votes (Very Popular)
-                        {% elif rec.numVotes >= 5000 %}
-                            {{ rec.numVotes }} votes (Popular)
-                        {% elif rec.numVotes >= 1000 %}
-                            {{ rec.numVotes }} votes (Moderately Popular)
-                        {% else %}
-                            {{ rec.numVotes }} votes
-                        {% endif %}
-                    </p>
-                </div>
+                <a href="https://www.imdb.com/title/{{ rec.parentTconst }}" target="_blank" class="card-link">
+                    <div class="card">
+                        <img src="{{ image_url }}" alt="{{ rec.seriesTitle }}">
+                        <h3>{{ rec.seriesTitle }}</h3>
+                        <p>{{ rec.genres.split(',')|join(' · ') }} <br>  {{ rec.episode_count }} episodes ({{ rec.total_runtime }} mins)</p>
+                        <p>{{ "%.1f" % rec.daily_time }} mins/day for {{ request.form.days }} days</p>
+                        <p>Avg Rating: {{ "%.1f" % rec.averageRating }}</p>
+                        <p>Popularity: 
+                            {% if rec.numVotes >= 10000 %}
+                                {{ "{:.1f}".format(rec.numVotes / 1000) }}K votes (Very Popular)
+                            {% elif rec.numVotes >= 5000 %}
+                                {{ rec.numVotes }} votes (Popular)
+                            {% elif rec.numVotes >= 1000 %}
+                                {{ rec.numVotes }} votes (Moderately Popular)
+                            {% else %}
+                                {{ rec.numVotes }} votes
+                            {% endif %}
+                        </p>
+                    </div>
+                </a>
                 {% endfor %}
                 </div>
             </section>
-            {% else %}
-            <p>No full binge recommendations available.</p>
             {% endif %}
 
         <!-- Daily Binge Form -->
@@ -98,7 +98,7 @@
                 </select>
                 <input type="number" name="time_limit" placeholder="Time today (minutes)" min="5" required>
             </div>
-            <button type="submit">Binge Today</button>
+            <button type="submit">Quick Binge</button>
         </form>
         
         <!-- Full Completion Form -->
@@ -119,12 +119,12 @@
                 <input type="number" name="days" placeholder="Days to finish" min="1" required>
                 <input type="number" name="daily_minutes" placeholder="Minutes per day" min="5" required>
             </div>
-            <button type="submit">Plan Full Binge</button>
+            <button type="submit">Full Binge</button>
         </form>
     </section>
 
     <footer>
-        <p>© 2025 BingeBuddy. Built with 🍿 and ❤️.</p>
+        <p>© 2025 Brush. Built with 🍿 and ❤️.</p>
     </footer>
 </body>
 </html>

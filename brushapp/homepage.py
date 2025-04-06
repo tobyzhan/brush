@@ -36,6 +36,7 @@ def homepage():
                 response = requests.get(url, params=params)
                 data = response.json()
                 daily_image_urls.append(data['items'][0]['link'])
+                
         elif form_type == "full":
             days = int(request.form.get("days", 0))
             daily_minutes = int(request.form.get("daily_minutes", 0))
