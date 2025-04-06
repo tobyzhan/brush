@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brush</title>
+    <title>BingeBuddy</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
-        <div class="logo">Brush</div>
+        <div class="logo">BingeBuddy</div>
         <nav>
             <a href="#">Home</a>
             <a href="#">Trending</a>
@@ -17,49 +17,64 @@
     </header>
 
     <section class="hero">
-        <h1>BRUSH</h1>
-        <p>Find the perfect show to binge based on your time and mood!</p>
+        <h1>What Are You In The Mood For?</h1>
+        <p>Find the perfect show to binge based on your time and vibe!</p>
+        
+        <!-- Daily Binge Form -->
         <form class="mood-form" method="POST">
-            <label>I'm feeling</label>
-            <input type="text" name="feeling" placeholder="comedy, romance, sad, etc." style="width: 40ch;" required>
-            
-            <label>today, with </label>
-            <input type="number" name="hrs" min="0" placeholder="hrs" style="width: 7ch;" required>
-            
-            <label>hour(s) and</label>
-            <input type="number" name="mins" min="0" max="59" placeholder="mins" style="width: 7ch;" required>
-
-            <label>min(s) to binge!</label>
-
-
-            <button type="submit">Binge</button>
+            <input type="hidden" name="form_type" value="daily">
+            <input type="text" name="genre" placeholder="Genre (e.g., Comedy)" autocomplete="off">
+            <input type="number" name="time_limit" placeholder="Time today (minutes)" min="5" required>
+            <button type="submit">Binge Today</button>
+        </form>
+        
+        <!-- Full Completion Form -->
+        <form class="mood-form" method="POST">
+            <input type="hidden" name="form_type" value="full">
+            <input type="text" name="genre" placeholder="Genre (e.g., Drama)" autocomplete="off">
+            <input type="number" name="days" placeholder="Days to finish" min="1" required>
+            <input type="number" name="daily_minutes" placeholder="Minutes per day" min="5" required>
+            <button type="submit">Plan Full Binge</button>
         </form>
     </section>
 
+    <!-- Daily Recommendations -->
+    {% if daily_recommendations %}
     <section class="recommendations">
-        <h2>Popular Picks</h2>
+        <h2>Today’s Binge Picks</h2>
         <div class="card-container">
-            <!-- Replace with dynamic content later -->
+            {% for rec in daily_recommendations %}
             <div class="card">
-                <img src="https://via.placeholder.com/200x300?text=Movie+1" alt="Movie 1">
-                <h3>Movie Title</h3>
-                <p>Genre · 1h 45m</p>
+                <img src="https://via.placeholder.com/200x300?text={{ rec.title }}" alt="{{ rec.title }}">
+                <h3>{{ rec.title }}</h3>
+                <p>{{ rec.genres }} · {{ rec.episodes }} episodes ({{ rec.total_time }} mins)</p>
+                <p>Avg Rating: {{ "%.1f" % (rec.episode_list|map(attribute='averageRating')|max) }}</p>
             </div>
-            <div class="card">
-                <img src="https://via.placeholder.com/200x300?text=Movie+2" alt="Movie 2">
-                <h3>Series Title</h3>
-                <p>Drama · 3 Seasons</p>
-            </div>
-            <div class="card">
-                <img src="https://via.placeholder.com/200x300?text=Movie+3" alt="Movie 3">
-                <h3>Another Hit</h3>
-                <p>Thriller · 2h</p>
-            </div>
+            {% endfor %}
         </div>
     </section>
+    {% endif %}
+
+    <!-- Full Completion Recommendations -->
+    {% if full_recommendations %}
+    <section class="recommendations">
+        <h2>Full Binge Plan</h2>
+        <div class="card-container">
+            {% for rec in full_recommendations %}
+            <div class="card">
+                <img src="https://via.placeholder.com/200x300?text={{ rec.primaryTitle }}" alt="{{ rec.primaryTitle }}">
+                <h3>{{ rec.primaryTitle }}</h3>
+                <p>{{ rec.genres }} · {{ rec.episode_count }} episodes ({{ rec.total_runtime }} mins)</p>
+                <p>{{ "%.1f" % rec.daily_time }} mins/day for {{ request.form.days }} days</p>
+                <p>Avg Rating: {{ "%.1f" % rec.averageRating }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
 
     <footer>
-        <p>© 2025 Brush. Built with 🍿 and ❤️.</p>
+        <p>© 2025 BingeBuddy. Built with 🍿 and ❤️.</p>
     </footer>
 </body>
-</html>
+</html> 

@@ -70,3 +70,8 @@ output_columns = ["tconst", "parentTconst", "primaryTitle", "seasonNumber", "epi
 tv_episodes[output_columns].to_csv("data/imdb_data.csv", index=False)
 
 print("Preprocessing complete! Saved to data/imdb_data.csv")
+
+print("Sample after merging with basics:")
+print(episodes.merge(basics, on="tconst").head())
+print("Sample after merging with ratings:")
+print(episodes.merge(basics, on="tconst").merge(ratings, on="tconst").head())

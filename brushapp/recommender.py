@@ -1,7 +1,13 @@
 import pandas as pd
+import os
+
+# Get the directory of the current script (recommender.py)
+script_dir = os.path.dirname(os.path.abspath(__file__))
+# Construct the path to imdb_data.csv
+data_path = os.path.join(script_dir, "data", "imdb_data.csv")
 
 # Load preprocessed IMDb data
-data = pd.read_csv("data/imdb_data.csv")
+data = pd.read_csv(data_path)
 
 def recommend_daily_binge(time_limit_minutes, genre=None):
     """Recommend episodes for a single sitting based on time and genre."""
